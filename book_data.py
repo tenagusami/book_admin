@@ -7,7 +7,7 @@ def dict2JSON(dict_list_in):
                   for key, value in dic.items()}
                  for dic in dict_list_in]
     dict_list_mod = process_comments(dict_list)
-    return [json.dumps(dic, ensure_ascii=False) for dic in dict_list_mod]
+    return json.dumps(dict_list_mod, ensure_ascii=False)
 
 
 def convert_value(key, value):
