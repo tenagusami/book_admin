@@ -1,6 +1,6 @@
 import unittest
 import json
-import access_ods as ods
+import access_ods as a
 import book_data as d
 
 mock_json = '''{
@@ -85,16 +85,31 @@ class TestBook(unittest.TestCase):
                           'category']
             empty_row = [MockCell(None) for i in range(10)]
 
-        self.assertEqual(ods.n_effective_columns(MockRow().row), 2)
-        self.assertEqual(ods.n_effective_columns(MockBookRow().title_row), 10)
-        self.assertEqual(ods.effective_columns(MockBookRow().title_row),
+        self.assertEqual(a.n_effective_columns(MockRow().row), 2)
+        self.assertEqual(a.n_effective_columns(MockBookRow().title_row), 10)
+        self.assertEqual(a.effective_columns(MockBookRow().title_row),
                          MockBookRow().title_row[:10])
-        self.assertEqual(ods.is_empty_row(MockBookRow().row), False)
-        self.assertEqual(ods.is_empty_row(MockBookRow().empty_row), True)
+        self.assertEqual(a.is_empty_row(MockBookRow().row), False)
+        self.assertEqual(a.is_empty_row(MockBookRow().empty_row), True)
         self.assertCountEqual(
-            ods.ods_row2_dict(
+            a.ods_row2_dict(
                 MockBookRow().row, MockBookRow().title_row, '書籍').keys(),
             MockBookRow().title_JSON)
+
+    def test_book_info(self):
+        self.assertEqual(
+            d.semicolon_list_converter('邦題：維摩経・首楞厳三昧経; ASIN: abcde'),
+            ['邦題：維摩経・首楞厳三昧経', 'ASIN: abcde'])
+        self.assertEqual(
+            d.extract_book_info_comment(
+                ('邦題：', 'japanese_title'),
+                ({}, ['ASIN: abcde']), '邦題：維摩経・首楞厳三昧経'),
+            ({'japanese_title': '維摩経・首楞厳三昧経'},
+             ['ASIN: abcde', '邦題：維摩経・首楞厳三昧経']))
+        self.assertEqual(
+            d.read_book_info('邦題：維摩経・首楞厳三昧経; ASIN: abcde'),
+            ({'ASIN': 'abcde',
+              'japanese_title': '維摩経・首楞厳三昧経'}, []))
 
 
 if __name__ == "__main__":

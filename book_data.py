@@ -40,6 +40,7 @@ def date_converter(date_string):
     date_pattern2 = r'^(\d{4})/(\d+)'
     matched = regex.search(date_pattern2, date_string)
     if matched:
+
         return {'year': int(matched.group(1)),
                 'month': int(matched.group(2)),
                 'day': 'unknown'}
@@ -74,22 +75,26 @@ def read_converter(value):
 def process_comments(dict_list):
     for dic in dict_list:
         dic['book_info'] = {}
-        value = dic['comment']
-        if value:
-            dic['book_info'], dic['comment'] = read_book_info(value)
+        comment_string = dic['comment']
+        if comment_string:
+            dic['book_info'], dic['comment'] = read_book_info(comment_string)
     return dict_list
 
 
 def read_book_info(comment_string):
-    book_info = {}
     comment_list = semicolon_list_converter(comment_string)
+    info_tuple = ({}, [])
     for comment in comment_list:
-        extract_book_info_comment(('邦題：', 'japanese_title'),
-                                  (book_info, comment_list), comment)
-        extract_book_info_comment(('ASIN:', 'ASIN'),
-                                  (book_info, comment_list), comment)
-        extract_book_info_comment(('韓国語題：', 'korean_title'),
-                                  (book_info, comment_list), comment)
+        info_tuple = extract_book_info_comment(
+            ('邦題：', 'japanese_title'), info_tuple, comment)
+        info_tuple = extract_book_info_comment(
+            ('ASIN:', 'ASIN'), info_tuple, comment)
+        info_tuple = extract_book_info_comment(
+            ('韓国語題：', 'korean_title'), info_tuple, comment)
+    book_info, comment_remove_list = info_tuple
+
+    for comment_remove in comment_remove_list:
+        comment_list.remove(comment_remove)
     return book_info, comment_list
 
 
@@ -98,5 +103,6 @@ def extract_book_info_comment(pattern_key_tuple, comment_info_tuple, comment):
     info_pattern, book_info_key = pattern_key_tuple
     if comment[0:len(info_pattern)] == info_pattern:
         book_info[book_info_key] = comment[len(info_pattern):].strip()
-        comment_list.remove(comment)
+        comment_list.append(comment)
+
     return book_info, comment_list
