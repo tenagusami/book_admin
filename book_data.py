@@ -12,7 +12,10 @@ def dict2JSON(dict_list_in):
 
 def convert_value(key, value):
     if key == 'authors':
-        return semicolon_list_converter(value)
+        author_list = semicolon_list_converter(value)
+        if author_list:
+            return author_list
+        return ['unknown']
 
     if key == 'publication_date':
         return date_converter(value)
@@ -38,14 +41,19 @@ def date_converter(date_string):
     matched = regex.search(date_pattern2, date_string)
     if matched:
         return {'year': int(matched.group(1)),
-                'month': int(matched.group(2)), }
+                'month': int(matched.group(2)),
+                'day': 'unknown'}
 
     date_pattern3 = r'^(\d{4})'
     matched = regex.search(date_pattern3, date_string)
     if matched:
-        return {'year': matched.group(1), }
+        return {'year': matched.group(1),
+                'month': 'unknown',
+                'day': 'unknown'}
 
-    return {}
+    return {'year': 'unknown',
+            'month': 'unknown',
+            'day': 'unknown'}
 
 
 def semicolon_list_converter(string_in):
